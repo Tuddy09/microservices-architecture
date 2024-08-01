@@ -66,8 +66,8 @@ def configure_views(app):
     @app.route('/weather', methods=['PUT'])
     def update_weather(db: SQLAlchemy):
         try:
-            event_id = request.args.get('id')
-            e = db.session.query(Weather).filter_by(id=event_id).first()
+            weather_id = request.args.get('id')
+            e = db.session.query(Weather).filter_by(id=weather_id).first()
             data = request.get_json()
             e.city = data.get('city')
             e.date = data.get('date')
@@ -81,8 +81,8 @@ def configure_views(app):
     @app.route('/weather', methods=['DELETE'])
     def delete_weather(db: SQLAlchemy):
         try:
-            event_id = request.args.get('id')
-            w = db.session.query(Weather).filter_by(id=event_id)
+            weather_id = request.args.get('id')
+            w = db.session.query(Weather).filter_by(id=weather_id).first()
             db.session.delete(w)
             db.session.commit()
             return 'OK', 200

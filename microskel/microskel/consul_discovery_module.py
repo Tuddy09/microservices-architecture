@@ -31,6 +31,11 @@ class ConsulDiscovery(ServiceDiscovery):
         self.services[service_name] = registrations
         return self.discover(service_name) if registrations else None
 
+    @log_call
+    def do_discover_periodically(self):
+        for service_name in self.services:
+            self.do_discover(service_name)
+
 
 class ConsulDiscoveryModule(Module):
     def __init__(self, app):

@@ -1,9 +1,12 @@
+import time
+
 from flask import Flask
 from flask_cors import CORS
 import logging
 import atexit
 import signal
 import sys
+import multiprocessing
 
 from decouple import config
 from flask_injector import FlaskInjector
@@ -41,12 +44,21 @@ class ServiceTemplate:
                 microskel.health_module, microskel.db_module,
                 microskel.logging_module, microskel.consul_discovery_module]
 
+    def periodic_discovery(self):
+        while True:
+            self.injector.get(microskel.consul_discovery_module.ServiceDiscovery).do_discover_periodically()
+            time.sleep(config('CONSUL_DISCOVERY_INTERVAL', cast=int))
+
     def start(self):
+        process = multiprocessing.Process(target=self.periodic_discovery)
+
         def before_shutdown():
             self.injector.get(microskel.consul_module.ConsulLifecycleListener).lifecycle_stopped()
+            process.terminate()
 
         def app_killed():
             self.injector.get(microskel.consul_module.ConsulLifecycleListener).lifecycle_stopped()
+            process.terminate()
             sys.exit(0)
 
         atexit.register(before_shutdown)
@@ -61,7 +73,7 @@ class ServiceTemplate:
             FlaskInjector(app=self.app, injector=self.injector)
 
         self.injector.get(microskel.consul_module.ConsulLifecycleListener).lifecycle_started()  # not 100% ok
-
+        process.start()
         self.app.run(host=config('MICROSERVICE_HOST'),
                      port=config('MICROSERVICE_PORT', cast=int),
                      debug=config('MICROSERVICE_DEBUG', cast=bool))

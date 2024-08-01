@@ -1,4 +1,4 @@
-FROM tuddy09/microskel24
+FROM microskel
 
 ADD . /opt/events_service
 WORKDIR /opt/events_service

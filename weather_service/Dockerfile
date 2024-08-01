@@ -1,4 +1,4 @@
-FROM tuddy09/microskel24
+FROM microskel
 
 ADD . /opt/weather_service
 WORKDIR /opt/weather_service

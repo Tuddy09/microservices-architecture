@@ -5,7 +5,7 @@ import requests
 from decouple import config
 
 
-class ServiceOneClient:  # TODO: frumos sa fie generate
+class ServiceOneClient:
     def __init__(self, service):
         self.service = service
 

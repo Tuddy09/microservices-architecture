@@ -93,18 +93,18 @@ services:
           cpus: '0.5'
           memory: 600M
 
-  redis-db:
-    image: redis
-    restart: always
-    networks:
-      siemens:
-        ipv4_address: 10.10.10.8
-    expose:
-      - 6379
-    environment:
-      - REDIS_PASSWORD=abc123
-      - REDIS_DATABASE=1
-      - REDIS_PORT=6379
+#  redis-db:
+#    image: redis
+#    restart: always
+#    networks:
+#      siemens:
+#        ipv4_address: 10.10.10.8
+#    expose:
+#      - 6379
+#    environment:
+#      - REDIS_PASSWORD=abc123
+#      - REDIS_DATABASE=1
+#      - REDIS_PORT=6379
 
   service-one-db:
     image: mysql
@@ -329,39 +329,39 @@ services:
           memory: 100M
 
 
-#  gateway-service:
-#    build: gateway_service
-#    depends_on:
-#      consul-agent:
-#        condition: service_started
-#      logstash-agent:
-#        condition: service_started
-#      events-service:
-#        condition: service_started
-#      weather-service:
-#        condition: service_started
-#    environment:
-#      - MICROSERVICE_NAME=gateway-service
-#      - MICROSERVICE_HOST=gateway-service
-#      - MICROSERVICE_PORT=5000
-#      - MICROSERVICE_DEBUG=True
-#      - CONSUL_CHECK_INTERVAL=20s
-#      - CONSUL_CHECK_TIMEOUT=10s
-#      - CONSUL_HOST=consul-agent
-#      - CONSUL_PORT=8500
-#      - LOGSTASH_AGENT_HOST=logstash-agent
-#      - LOGSTASH_AGENT_PORT=51515
-#      - LOGSTASH_ENABLED=True
-#    networks:
-#      siemens:
-#        ipv4_address: 10.10.10.12
-#    ports:
-#      - "8083:5000"
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: '0.25'
-#          memory: 100M
+  gateway-service:
+    build: gateway_service
+    depends_on:
+      consul-agent:
+        condition: service_started
+      logstash-agent:
+        condition: service_started
+      events-service:
+        condition: service_started
+      weather-service:
+        condition: service_started
+    environment:
+      - MICROSERVICE_NAME=gateway-service
+      - MICROSERVICE_HOST=gateway-service
+      - MICROSERVICE_PORT=5000
+      - MICROSERVICE_DEBUG=True
+      - CONSUL_CHECK_INTERVAL=20s
+      - CONSUL_CHECK_TIMEOUT=10s
+      - CONSUL_HOST=consul-agent
+      - CONSUL_PORT=8500
+      - LOGSTASH_AGENT_HOST=logstash-agent
+      - LOGSTASH_AGENT_PORT=51515
+      - LOGSTASH_ENABLED=True
+    networks:
+      siemens:
+        ipv4_address: 10.10.10.12
+    ports:
+      - "8082:5000"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 100M
 
 networks:
   siemens:
@@ -373,9 +373,4 @@ networks:
 
 volumes:
   database-data:
-  #    driver: local
-  #    driver_opts:
-  #      o: "size=200m"
-  #      type: "tmpfs"
-  #      device: "tmpfs"
   elasticsearch-data:

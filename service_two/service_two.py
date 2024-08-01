@@ -10,9 +10,6 @@ class ServiceTwo(ServiceTemplate):
     def get_python_modules(self):
         return super().get_python_modules() + [service_one_client_module]
 
-    def custom_function(self, name):  # ca si exemplu
-        data = self.injector.get(service_one_client_module.ServiceOneClient).get_hello(name)
-        return data
 
 
 if __name__ == '__main__':
