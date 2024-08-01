@@ -93,18 +93,11 @@ services:
           cpus: '0.5'
           memory: 600M
 
-#  redis-db:
-#    image: redis
-#    restart: always
-#    networks:
-#      siemens:
-#        ipv4_address: 10.10.10.8
-#    expose:
-#      - 6379
-#    environment:
-#      - REDIS_PASSWORD=abc123
-#      - REDIS_DATABASE=1
-#      - REDIS_PORT=6379
+  redis-db:
+    image: redis
+    networks:
+      siemens:
+        ipv4_address: 10.10.10.8
 
   service-one-db:
     image: mysql
@@ -286,8 +279,8 @@ services:
     networks:
       siemens:
         ipv4_address: 10.10.10.10
-    ports:
-      - "8081:5000"
+    expose:
+      - 5000
     deploy:
       resources:
         limits:
@@ -301,8 +294,8 @@ services:
         condition: service_started
       logstash-agent:
         condition: service_started
-      service-one-db:
-        condition: service_healthy
+      redis-db:
+        condition: service_started
     environment:
       - MICROSERVICE_NAME=weather-service
       - MICROSERVICE_HOST=weather-service
@@ -315,13 +308,11 @@ services:
       - LOGSTASH_AGENT_HOST=logstash-agent
       - LOGSTASH_AGENT_PORT=51515
       - LOGSTASH_ENABLED=True
-      - USE_DB=True
-      - MICROSERVICE_DB_URI=mysql://keyvalue:abc123@service-one-db/keyvalue
     networks:
       siemens:
         ipv4_address: 10.10.10.11
-    ports:
-      - "8083:5000"
+    expose:
+      - 5000
     deploy:
       resources:
         limits:
