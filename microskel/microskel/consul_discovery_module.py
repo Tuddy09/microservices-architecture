@@ -1,3 +1,5 @@
+import functools
+
 from injector import Module, Binder, singleton
 import consul
 import random
@@ -35,6 +37,7 @@ class ConsulDiscovery(ServiceDiscovery):
     def do_discover_periodically(self):
         for service_name in self.services:
             self.do_discover(service_name)
+        return "Periodic discovery done"
 
 
 class ConsulDiscoveryModule(Module):

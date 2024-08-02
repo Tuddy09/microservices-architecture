@@ -2,6 +2,7 @@ import requests
 from flask import request
 from injector import Module, Binder, singleton
 
+from microskel.retry_mechanism_module import RetryMechanismStrategy
 from microskel.service_discovery import ServiceDiscovery  # interfata
 
 
@@ -11,20 +12,24 @@ class GatewayProxy:
 
     def proxy_request(self, method, endpoint, url_parameters, body):
         service_name = endpoint
+        retry_mechanism = self.service.injector.get(RetryMechanismStrategy)
         endpoint = self.service.injector.get(ServiceDiscovery).discover(endpoint)
         url = f"{endpoint.to_base_url()}/weather" if service_name == 'weather-service' else f"{endpoint.to_base_url()}/events"
-        if not endpoint:
-            return 'No endpoint', 401
-        if method == 'GET':
-            if not url_parameters:
-                return requests.get(url)
-            return requests.get(f'{url}?{url_parameters}')
-        elif method == 'POST':
-            return requests.post(f'{url}', json=body)
-        elif method == 'PUT':
-            return requests.put(f'{url}?{url_parameters}', json=body)
-        elif method == 'DELETE':
-            return requests.delete(f'{url}?{url_parameters}')
+        try:
+            if not endpoint:
+                return 'No endpoint', 401
+            if method == 'GET':
+                if not url_parameters:
+                    return requests.get(url)
+                return requests.get(f'{url}?{url_parameters}')
+            elif method == 'POST':
+                return requests.post(f'{url}', json=body)
+            elif method == 'PUT':
+                return requests.put(f'{url}?{url_parameters}', json=body)
+            elif method == 'DELETE':
+                return requests.delete(f'{url}?{url_parameters}')
+        except requests.exceptions.RequestException as e:
+            return retry_mechanism.retry_algorithm(method, url, url_parameters, body)
 
 
 class GatewayServiceModule(Module):

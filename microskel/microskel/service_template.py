@@ -19,6 +19,7 @@ import microskel.health_module
 import microskel.logging_module
 import microskel.consul_discovery_module
 import microskel.log_call_module
+import microskel.retry_mechanism_module
 
 
 class ServiceTemplate:
@@ -34,7 +35,8 @@ class ServiceTemplate:
                    microskel.hello_module.HelloModule(),
                    microskel.consul_module.ConsulModule(self.app), microskel.health_module.HealthModule(),
                    microskel.logging_module.LoggingModule(self.app),
-                   microskel.consul_discovery_module.ConsulDiscoveryModule(self.app)]
+                   microskel.consul_discovery_module.ConsulDiscoveryModule(self.app),
+                   microskel.retry_mechanism_module.RetryMechanismModule()]
         if config('USE_DB', cast=bool):
             modules.append(microskel.db_module.DatabaseModule(self.app))
         return modules
@@ -42,7 +44,7 @@ class ServiceTemplate:
     def get_python_modules(self):
         return [microskel.log_call_module, microskel.hello_module, microskel.consul_module,
                 microskel.health_module, microskel.db_module,
-                microskel.logging_module, microskel.consul_discovery_module]
+                microskel.logging_module, microskel.consul_discovery_module, microskel.retry_mechanism_module]
 
     def periodic_discovery(self):
         while True:
