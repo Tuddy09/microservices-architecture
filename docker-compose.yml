@@ -381,7 +381,7 @@ services:
       - LOGSTASH_AGENT_PORT=51515
       - LOGSTASH_ENABLED=True
       - RETRY_MECHANISM=jitter
-      - LOAD_BALANCER=round_robin
+      - LOAD_BALANCER=least_response_time
     networks:
       siemens:
         ipv4_address: 10.10.10.12
