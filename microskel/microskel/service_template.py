@@ -1,3 +1,4 @@
+import threading
 import time
 
 from flask import Flask
@@ -52,15 +53,15 @@ class ServiceTemplate:
             time.sleep(config('CONSUL_DISCOVERY_INTERVAL', cast=int))
 
     def start(self):
-        process = multiprocessing.Process(target=self.periodic_discovery)
+        thread = threading.Thread(target=self.periodic_discovery)
 
         def before_shutdown():
             self.injector.get(microskel.consul_module.ConsulLifecycleListener).lifecycle_stopped()
-            process.terminate()
+            thread.join()
 
         def app_killed():
             self.injector.get(microskel.consul_module.ConsulLifecycleListener).lifecycle_stopped()
-            process.terminate()
+            thread.join()
             sys.exit(0)
 
         atexit.register(before_shutdown)
@@ -75,7 +76,7 @@ class ServiceTemplate:
             FlaskInjector(app=self.app, injector=self.injector)
 
         self.injector.get(microskel.consul_module.ConsulLifecycleListener).lifecycle_started()  # not 100% ok
-        process.start()
+        thread.start()
         self.app.run(host=config('MICROSERVICE_HOST'),
                      port=config('MICROSERVICE_PORT', cast=int),
                      debug=config('MICROSERVICE_DEBUG', cast=bool))

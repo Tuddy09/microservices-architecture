@@ -275,7 +275,9 @@ services:
       - LOGSTASH_AGENT_PORT=51515
       - LOGSTASH_ENABLED=True
       - USE_DB=True
+      - RETRY_MECHANISM=exponential_backoff
       - MICROSERVICE_DB_URI=mysql://keyvalue:abc123@service-one-db/keyvalue
+      - LOAD_BALANCER=round_robin
     networks:
       siemens:
         ipv4_address: 10.10.10.10
@@ -308,6 +310,8 @@ services:
       - LOGSTASH_AGENT_HOST=logstash-agent
       - LOGSTASH_AGENT_PORT=51515
       - LOGSTASH_ENABLED=True
+      - RETRY_MECHANISM=exponential_backoff
+      - LOAD_BALANCER=round_robin
     networks:
       siemens:
         ipv4_address: 10.10.10.11
@@ -319,6 +323,39 @@ services:
           cpus: '0.25'
           memory: 100M
 
+  weather-service-1:
+    build: weather_service
+    depends_on:
+      consul-agent:
+        condition: service_started
+      logstash-agent:
+        condition: service_started
+      redis-db:
+        condition: service_started
+    environment:
+      - MICROSERVICE_NAME=weather-service
+      - MICROSERVICE_HOST=weather-service-1
+      - MICROSERVICE_PORT=5000
+      - MICROSERVICE_DEBUG=True
+      - CONSUL_CHECK_INTERVAL=20s
+      - CONSUL_CHECK_TIMEOUT=10s
+      - CONSUL_HOST=consul-agent
+      - CONSUL_PORT=8500
+      - LOGSTASH_AGENT_HOST=logstash-agent
+      - LOGSTASH_AGENT_PORT=51515
+      - LOGSTASH_ENABLED=True
+      - RETRY_MECHANISM=exponential_backoff
+      - LOAD_BALANCER=round_robin
+    networks:
+      siemens:
+        ipv4_address: 10.10.10.13
+    expose:
+      - 5000
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 100M
 
   gateway-service:
     build: gateway_service
@@ -343,6 +380,8 @@ services:
       - LOGSTASH_AGENT_HOST=logstash-agent
       - LOGSTASH_AGENT_PORT=51515
       - LOGSTASH_ENABLED=True
+      - RETRY_MECHANISM=jitter
+      - LOAD_BALANCER=round_robin
     networks:
       siemens:
         ipv4_address: 10.10.10.12

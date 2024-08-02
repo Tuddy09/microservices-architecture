@@ -16,6 +16,3 @@ class HostAndPort:
 class ServiceDiscovery:
     def discover(self, service_name: str) -> HostAndPort:
         pass
-
-
-    
