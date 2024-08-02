@@ -35,7 +35,7 @@ class ConsulDiscovery(ServiceDiscovery):
 
     @log_call
     def do_discover_periodically(self):
-        for service_name in self.services:
+        for service_name in self.services.keys():
             self.do_discover(service_name)
         return "Periodic discovery done"
 
